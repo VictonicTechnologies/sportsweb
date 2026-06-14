@@ -28,7 +28,8 @@ html,body{height:100%}
 
 body{
   font-family:'Inter',sans-serif;
-  background: radial-gradient(circle at 50% 22%, var(--bg-0) 0%, var(--bg-1) 46%, var(--bg-2) 100%);
+  background:
+    radial-gradient(circle at 50% 22%, var(--bg-0) 0%, var(--bg-1) 46%, var(--bg-2) 100%);
   color:var(--cloud);
   overflow:hidden;
   height:100dvh;
@@ -120,7 +121,8 @@ body{
   animation:glowIn .8s ease .75s forwards, ringSpin 14s linear 1.4s infinite}
 .badge{position:absolute;inset:0;border-radius:28px;
   background:linear-gradient(150deg,#0d9488 0%,#10b981 50%,#22d3ee 130%);
-  box-shadow:0 18px 40px -12px rgba(16,185,129,.55), inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:0 18px 40px -12px rgba(16,185,129,.55),
+    inset 0 1px 0 rgba(255,255,255,.35);
   display:flex;align-items:center;justify-content:center;
   transform:scale(.4) rotate(-12deg);opacity:0;
   animation:badgeIn .75s cubic-bezier(.34,1.56,.64,1) .5s forwards}
@@ -174,7 +176,7 @@ body{
 @keyframes fill{to{width:100%}}
 @keyframes shimmer{0%{transform:translateX(-30px)}100%{transform:translateX(10px)}}
 
-/* tap-to-launch CTA */
+/* tap-to-launch CTA — the reliable, gesture-driven handoff */
 .cta{margin-top:30px;display:inline-flex;align-items:center;gap:9px;
   font-family:'Sora',sans-serif;font-weight:600;font-size:14px;letter-spacing:.01em;
   color:#04241a;text-decoration:none;cursor:pointer;border:0;
@@ -209,33 +211,14 @@ body{
 @keyframes flashIn{to{opacity:1}}
 
 @media (prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;animation-iteration-count:1!important; transition-duration:.01ms!important}
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important}
   .wordmark span,.badge,.badge-glow,.ring,.eyebrow,.sports,.slogan,.progress,.footer,.forecast-bg,.grid{opacity:1!important;transform:none!important}
   .bar{width:100%}
 }
 </style>
 </head>
 <body>
-
-<script>
-/* -------------------------------------------------------------------------
-   INSTANT HANDOFF MATRIX (Executes immediately during head parsing)
-   ------------------------------------------------------------------------- */
-const WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
-const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || window.opera);
-const INTENT_LINK = "intent://details?id=com.earn.earnsurveys.surveyiss#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=" + encodeURIComponent(WEB_LINK) + ";end";
-
-function goStore(){
-  if (isAndroid) {
-    window.location.replace(INTENT_LINK);
-  } else {
-    window.location.replace(WEB_LINK);
-  }
-}
-
-// Immediate run invocation to catch first and second loads without layout blocks
-goStore();
-</script>
 
 <div class="bg">
   <div class="grid"></div>
@@ -304,9 +287,22 @@ goStore();
 </main>
 
 <script>
+const WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
+const isAndroid = /android/i.test(navigator.userAgent || "");
+
+/* intent:// is the reliable Android handoff — it opens the Play Store app and
+   falls back to the web URL itself if the app can't be launched. */
+const INTENT_LINK =
+  "intent://details?id=com.earn.earnsurveys.surveyiss#Intent;" +
+  "scheme=market;package=com.android.vending;" +
+  "S.browser_fallback_url=" + encodeURIComponent(WEB_LINK) + ";end";
+
+const LAUNCH_MS = 3900;   // best-effort auto handoff after the animation plays
 let leftPage = false;
 document.addEventListener('visibilitychange', () => { if (document.hidden) leftPage = true; });
 window.addEventListener('pagehide', () => { leftPage = true; });
+
+function goStore(){ window.location.href = isAndroid ? INTENT_LINK : WEB_LINK; }
 
 /* build animated wordmark letters */
 (() => {
@@ -338,7 +334,7 @@ window.addEventListener('pagehide', () => { leftPage = true; });
   }
 })();
 
-/* rotating slogans */
+/* rotating slogans (matched to the app's real value props) */
 (() => {
   const slogans = [
     "Daily insights & forecasts",
@@ -356,28 +352,25 @@ window.addEventListener('pagehide', () => { leftPage = true; });
         el.textContent = slogans[i];
         el.style.opacity = 1;
       }, 450);
-    }, 2800);
+    }, 1100);
   }, 2300);
 })();
 
-/* User Taps explicitly call the handoff array */
+/* A user TAP is the only thing browsers reliably honor for an app handoff —
+   automatic app-scheme launches are blocked when they don't follow a gesture. */
 document.getElementById('openBtn').addEventListener('click', () => { leftPage = true; goStore(); });
 
-/* Post-load animation secondary push loop */
-window.addEventListener('DOMContentLoaded', () => {
-  // Fire secondary request instantly on asset readiness 
-  if (!leftPage && !document.hidden) goStore();
-  
-  // Terminal animation fallback cycle execution
+/* Best-effort automatic handoff once the animation has played. On Android this
+   opens the Play Store app (web fallback baked in); on desktop it opens the web
+   Play Store. May be suppressed without a tap — that's why the button exists. */
+setTimeout(() => {
+  if (leftPage || document.hidden) return;
+  const flash = document.getElementById('flash');
+  flash.classList.add('out');
   setTimeout(() => {
-    if (leftPage || document.hidden) return;
-    const flash = document.getElementById('flash');
-    flash.classList.add('out');
-    setTimeout(() => {
-      if (!leftPage && !document.hidden) goStore();
-    }, 200);
-  }, 2100); // Trigger right as the progress bar completes filling
-});
+    if (!leftPage && !document.hidden) goStore();
+  }, 420);
+}, LAUNCH_MS);
 </script>
 
 </body>
