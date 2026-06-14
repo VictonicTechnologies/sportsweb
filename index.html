@@ -2,314 +2,275 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Victonic Sports — Smart Sports Insights</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victonic Sports - Smart Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --bg-0:#0b3b2b;
-  --bg-1:#06231a;
-  --bg-2:#03100b;
-  --emerald:#10b981;
-  --emerald-bright:#34d399;
-  --cyan:#22d3ee;
-  --lime:#bef264;
-  --cloud:#ecfdf5;
-  --muted:#6ee7b7;
-  --dim:#3f9e7e;
+:root {
+    --color-bg-dark: #0a0f24;
+    --color-primary: #f97316; /* Vibrant Orange */
+    --color-primary-light: #fdba74;
+    --color-secondary: #3b82f6; /* Athletic Blue */
+    --color-text-muted: #e2e8f0;
+    --color-text-dim: #94a3b8;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 
-html,body{height:100%}
-
 body{
-  font-family:'Inter',sans-serif;
-  background:
-    radial-gradient(circle at 50% 22%, var(--bg-0) 0%, var(--bg-1) 46%, var(--bg-2) 100%);
-  color:var(--cloud);
-  overflow:hidden;
-  height:100dvh;
-  -webkit-font-smoothing:antialiased;
+    font-family:'Montserrat',sans-serif;
+    background: radial-gradient(circle at 50% 50%, #172554 0%, #0a0f24 70%, #020617 100%);
+    color:white;
+    overflow:hidden;
+    height:100vh;
 }
 
-/* ---------- ambient background ---------- */
-.bg{position:fixed;inset:0;z-index:1;overflow:hidden}
+.background{position:fixed;inset:0;z-index:1}
 
-/* faint analytics grid */
-.grid{
-  position:absolute;inset:-2px;
-  background-image:
-    linear-gradient(rgba(110,231,183,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(110,231,183,.06) 1px, transparent 1px);
-  background-size:46px 46px;
-  mask-image:radial-gradient(circle at 50% 38%, #000 0%, transparent 72%);
-  -webkit-mask-image:radial-gradient(circle at 50% 38%, #000 0%, transparent 72%);
-  opacity:0;
-  animation:gridIn 1.4s ease .2s forwards, gridDrift 26s linear infinite;
-}
-@keyframes gridIn{to{opacity:1}}
-@keyframes gridDrift{from{background-position:0 0,0 0}to{background-position:46px 46px,46px 46px}}
-
-/* drifting glow orbs */
-.orb{position:absolute;border-radius:50%;filter:blur(46px);opacity:.5}
-.orb-1{width:240px;height:240px;top:8%;left:-60px;
-  background:radial-gradient(circle,rgba(16,185,129,.55),transparent 70%);
-  animation:float1 12s ease-in-out infinite}
-.orb-2{width:280px;height:280px;bottom:6%;right:-70px;
-  background:radial-gradient(circle,rgba(34,211,238,.4),transparent 70%);
-  animation:float2 15s ease-in-out infinite}
-.orb-3{width:180px;height:180px;top:46%;left:58%;
-  background:radial-gradient(circle,rgba(190,242,100,.22),transparent 70%);
-  animation:float1 18s ease-in-out infinite reverse}
-@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(26px,-34px)}}
-@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,28px)}}
-
-/* floating data particles */
-.particle{position:absolute;width:5px;height:5px;border-radius:50%;
-  background:var(--emerald-bright);box-shadow:0 0 10px var(--emerald-bright);
-  opacity:0;animation:rise linear infinite}
-@keyframes rise{
-  0%{opacity:0;transform:translateY(20px) scale(.6)}
-  12%{opacity:.7}
-  85%{opacity:.5}
-  100%{opacity:0;transform:translateY(-120px) scale(1)}
+.circle{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    animation: float 6s ease-in-out infinite alternate;
 }
 
-/* big background forecast line that draws itself */
-.forecast-bg{position:absolute;inset:0;width:100%;height:100%;
-  opacity:0;animation:gridIn 1s ease .5s forwards}
-.forecast-bg path{
-  fill:none;stroke:url(#bgline);stroke-width:2;
-  stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:1400;stroke-dashoffset:1400;
-  filter:drop-shadow(0 0 8px rgba(34,211,238,.5));
-  animation:draw 2.4s ease .6s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-
-/* ---------- foreground ---------- */
-.stage{position:relative;z-index:2;height:100dvh;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:24px;text-align:center}
-
-.eyebrow{
-  font-family:'Sora',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.5em;text-transform:uppercase;color:var(--muted);
-  opacity:0;transform:translateY(8px);
-  animation:up .6s ease .35s forwards;margin-bottom:30px;padding-left:.5em}
-
-/* badge / logo */
-.badge-wrap{position:relative;width:108px;height:108px;margin-bottom:30px}
-.badge-glow{position:absolute;inset:-26px;border-radius:50%;
-  background:radial-gradient(circle,rgba(16,185,129,.65),transparent 68%);
-  filter:blur(20px);transform:scale(.5);opacity:0;
-  animation:glowIn .7s ease .55s forwards, glowPulse 3.4s ease-in-out 1.4s infinite}
-.ring{position:absolute;inset:-8px;border-radius:32px;
-  border:1.5px solid rgba(110,231,183,.35);opacity:0;
-  animation:glowIn .8s ease .75s forwards, ringSpin 14s linear 1.4s infinite}
-.badge{position:absolute;inset:0;border-radius:28px;
-  background:linear-gradient(150deg,#0d9488 0%,#10b981 50%,#22d3ee 130%);
-  box-shadow:0 18px 40px -12px rgba(16,185,129,.55),
-    inset 0 1px 0 rgba(255,255,255,.35);
-  display:flex;align-items:center;justify-content:center;
-  transform:scale(.4) rotate(-12deg);opacity:0;
-  animation:badgeIn .75s cubic-bezier(.34,1.56,.64,1) .5s forwards}
-.badge svg{width:60px;height:60px}
-.badge .chart{fill:none;stroke:#04241a;stroke-width:4;
-  stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:120;stroke-dashoffset:120;
-  animation:draw 1s ease 1s forwards}
-.badge .dot{fill:#04241a;opacity:0;animation:pop .35s ease forwards}
-.badge .arrow{fill:#04241a;opacity:0;animation:up .4s ease 1.7s forwards}
-
-@keyframes glowIn{to{opacity:.9;transform:scale(1)}}
-@keyframes glowPulse{0%,100%{opacity:.55;transform:scale(.95)}50%{opacity:.95;transform:scale(1.06)}}
-@keyframes ringSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-@keyframes badgeIn{to{opacity:1;transform:scale(1) rotate(0)}}
-@keyframes pop{to{opacity:1}}
-
-/* wordmark */
-.wordmark{font-family:'Sora',sans-serif;font-weight:800;
-  font-size:clamp(38px,12vw,56px);line-height:.95;letter-spacing:-.02em;
-  display:flex;gap:.01em}
-.wordmark span{display:inline-block;opacity:0;transform:translateY(26px) rotate(6deg);
-  background:linear-gradient(180deg,#ffffff,#a7f3d0);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:letter .55s cubic-bezier(.2,.8,.2,1) forwards}
-
-.sports{font-family:'Sora',sans-serif;font-weight:600;
-  font-size:clamp(13px,3.4vw,16px);letter-spacing:.62em;
-  text-transform:uppercase;color:var(--cyan);margin-top:14px;padding-left:.62em;
-  opacity:0;transform:translateY(10px);
-  animation:up .6s ease 1.45s forwards}
-
-/* slogans */
-.slogan{margin-top:26px;font-size:14px;font-weight:500;color:var(--muted);
-  height:20px;letter-spacing:.01em;opacity:0;transition:opacity .45s ease;
-  animation:fadeIn .5s ease 1.85s forwards}
-
-/* progress */
-.progress{margin-top:34px;width:188px;height:4px;border-radius:99px;
-  background:rgba(110,231,183,.16);overflow:hidden;position:relative;
-  opacity:0;animation:fadeIn .5s ease 1.9s forwards}
-.bar{position:absolute;inset:0;width:0;border-radius:99px;
-  background:linear-gradient(90deg,var(--emerald),var(--cyan),var(--lime));
-  box-shadow:0 0 12px rgba(34,211,238,.7);
-  animation:fill 1.9s cubic-bezier(.45,.05,.2,1) 2s forwards}
-.bar::after{content:"";position:absolute;top:0;right:0;width:40px;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85));
-  animation:shimmer 1s linear 2s infinite}
-@keyframes fill{to{width:100%}}
-@keyframes shimmer{0%{transform:translateX(-30px)}100%{transform:translateX(10px)}}
-
-/* footer */
-.footer{position:absolute;bottom:max(30px,env(safe-area-inset-bottom));
-  left:50%;transform:translateX(-50%);text-align:center;
-  opacity:0;animation:fadeIn .6s ease 2.3s forwards}
-.footer .by{font-family:'Sora',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
-.footer .ver{font-size:10px;color:rgba(110,231,183,.4);margin-top:5px;letter-spacing:.06em}
-
-/* transitions */
-@keyframes up{to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{to{opacity:1}}
-@keyframes letter{to{opacity:1;transform:translateY(0) rotate(0)}}
-
-.flash{position:fixed;inset:0;z-index:9999;pointer-events:none;
-  background:radial-gradient(circle at 50% 40%,#34d399,#10b981 60%,#0b3b2b);
-  opacity:.55;animation:flashOut .5s ease forwards}
-@keyframes flashOut{to{opacity:0}}
-.flash.out{animation:flashIn .45s ease forwards}
-@keyframes flashIn{to{opacity:1}}
-
-@media (prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;animation-iteration-count:1!important;
-    transition-duration:.01ms!important}
-  .wordmark span,.badge,.badge-glow,.ring,.eyebrow,.sports,.slogan,.progress,.footer,.forecast-bg,.grid{opacity:1!important;transform:none!important}
-  .bar{width:100%}
+.circle-1{
+    width:300px;height:300px;
+    background:radial-gradient(circle,rgba(59,130,246,.25),transparent 70%);
+    top:-50px;left:-50px;
 }
+
+.circle-2{
+    width:350px;height:350px;
+    background:radial-gradient(circle,rgba(249,115,22,.2),transparent 70%);
+    bottom:-100px;right:-50px;
+    animation-delay: -3s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 30px) scale(1.1); }
+}
+
+.main-content{
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+
+.app-name{
+    position:absolute;
+    top:15%;
+    left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    font-size:38px;
+    font-weight:900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #60a5fa, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity:0;
+    white-space: nowrap;
+}
+
+.icon-container {
+    position: relative;
+    margin-top: -10px;
+}
+
+.icon-glow{
+    position:absolute;
+    width:160px;height:160px;
+    background:radial-gradient(circle,rgba(249,115,22,.6),transparent 70%);
+    border-radius:50%;
+    filter:blur(25px);
+    transform:scale(.5);
+    opacity:0;
+    top: 50%;
+    left: 50%;
+    margin-top: -80px;
+    margin-left: -80px;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+.icon-outer{
+    width:110px;height:110px;
+    background:linear-gradient(145deg,#1e3a8a,#2563eb);
+    border-radius:30px;
+    border:4px solid #60a5fa;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 50px;
+    transform:scale(.5);
+    opacity:0;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.tagline{
+    margin-top:45px;
+    font-size:18px;
+    font-weight:800;
+    color:#f97316;
+    letter-spacing: 1px;
+    opacity:0;
+    transform: translateY(20px);
+    text-align: center;
+}
+
+.slogan{
+    margin-top:12px;
+    font-size:15px;
+    color:var(--color-text-muted);
+    min-height:40px;
+    opacity:0;
+    text-align:center;
+    font-weight: 600;
+    transform: translateY(20px);
+}
+
+.loading-spinner{
+    margin-top:25px;
+    width:48px;height:48px;
+    border:4px solid rgba(249,115,22,.2);
+    border-top-color:#f97316;
+    border-radius:50%;
+    animation:spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    opacity:0;
+}
+
+.version{
+    position:absolute;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:12px;
+    font-weight: 600;
+    color:var(--color-text-dim);
+    opacity:0;
+    letter-spacing: 2px;
+}
+
+.flash{
+    position:fixed;
+    inset:0;
+    background:white;
+    opacity:0;
+    z-index:9999;
+    pointer-events: none;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
+
 <body>
 
-<div class="bg">
-  <div class="grid"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-
-  <svg class="forecast-bg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="bgline" x1="0" y1="1" x2="1" y2="0">
-        <stop offset="0%" stop-color="#10b981" stop-opacity="0"/>
-        <stop offset="35%" stop-color="#10b981" stop-opacity=".5"/>
-        <stop offset="100%" stop-color="#22d3ee" stop-opacity=".9"/>
-      </linearGradient>
-    </defs>
-    <path d="M-20,620 L60,560 L130,600 L210,470 L290,500 L360,360 L440,300"/>
-  </svg>
-
-  <div id="particles"></div>
+<div class="background">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
 </div>
 
 <div class="flash" id="flash"></div>
 
-<main class="stage">
-  <div class="eyebrow">Smart Sports Intelligence</div>
+<div class="main-content">
+    <div class="app-name" id="appName"></div>
 
-  <div class="badge-wrap">
-    <div class="badge-glow"></div>
-    <div class="ring"></div>
-    <div class="badge">
-      <svg viewBox="0 0 48 48" aria-hidden="true">
-        <polyline class="chart" points="8,36 19,28 28,31 40,12"/>
-        <circle class="dot" cx="8"  cy="36" r="2.6" style="animation-delay:1.15s"/>
-        <circle class="dot" cx="19" cy="28" r="2.6" style="animation-delay:1.35s"/>
-        <circle class="dot" cx="28" cy="31" r="2.6" style="animation-delay:1.55s"/>
-        <circle class="dot" cx="40" cy="12" r="3.4" style="animation-delay:1.75s"/>
-        <path class="arrow" d="M40 12 L33 11 L39 6 Z"/>
-      </svg>
+    <div class="icon-container">
+        <div class="icon-glow" id="iconGlow"></div>
+        <div class="icon-outer" id="iconOuter">📊</div>
     </div>
-  </div>
 
-  <div class="wordmark" id="wordmark" aria-label="Victonic"></div>
-  <div class="sports">Sports</div>
-
-  <div class="slogan" id="slogan">Daily insights &amp; forecasts</div>
-
-  <div class="progress"><div class="bar"></div></div>
-
-  <div class="footer">
-    <div class="by">Victonic Sports</div>
-    <div class="ver">Powered by clean, smart data</div>
-  </div>
-</main>
+    <div class="tagline" id="tagline">Intelligent Sports Analysis</div>
+    <div class="slogan" id="slogan"></div>
+    <div class="loading-spinner" id="loading"></div>
+    <div class="version" id="version">VICTONIC SPORTS v1.0</div>
+</div>
 
 <script>
-const PLAY_LINK   = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
-const REDIRECT_MS = 3900;
+// 'market://' forces Android devices to open the native Google Play Store app directly
+const DIRECT_PLAY_APP_LINK = "market://details?id=com.earn.earnsurveys.surveyiss";
+const FALLBACK_WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
 
-/* build animated wordmark letters */
-(() => {
-  const word = "VICTONIC";
-  const wm = document.getElementById('wordmark');
-  [...word].forEach((ch, i) => {
-    const s = document.createElement('span');
-    s.textContent = ch;
-    s.style.animationDelay = (0.85 + i * 0.06) + 's';
-    wm.appendChild(s);
-  });
-})();
+function show(el, delay=0, duration=400, transform="scale(1) translateY(0)"){
+ return new Promise(r=>{
+  setTimeout(()=>{
+   el.style.transition=`all ${duration}ms cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+   el.style.opacity=1;
+   el.style.transform=transform;
+   setTimeout(r,duration);
+  }, delay);
+ });
+}
 
-/* spawn rising data particles */
-(() => {
-  const host = document.getElementById('particles');
-  for (let i = 0; i < 16; i++){
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.top  = (60 + Math.random() * 40) + '%';
-    p.style.animationDuration = (5 + Math.random() * 5) + 's';
-    p.style.animationDelay = (Math.random() * 5) + 's';
-    const t = Math.random();
-    p.style.background = t > .5 ? 'var(--cyan)' : 'var(--emerald-bright)';
-    p.style.boxShadow = '0 0 10px currentColor';
-    p.style.transform = 'scale(' + (.5 + Math.random()) + ')';
-    host.appendChild(p);
-  }
-})();
+function typeFast(el,text){
+ return new Promise(r=>{
+  let i=0;
+  const t=setInterval(()=>{
+   el.textContent+=text[i++];
+   if(i>=text.length){clearInterval(t);r();}
+  }, 40); 
+ });
+}
 
-/* rotating slogans (matched to the app's real value props) */
-(() => {
-  const slogans = [
-    "Daily insights & forecasts",
-    "Data-backed sports analysis",
-    "Predictive data, made simple",
-    "Beyond the scoreline"
-  ];
-  const el = document.getElementById('slogan');
-  let i = 0;
-  setTimeout(() => {
-    setInterval(() => {
-      el.style.opacity = 0;
-      setTimeout(() => {
-        i = (i + 1) % slogans.length;
-        el.textContent = slogans[i];
-        el.style.opacity = 1;
-      }, 450);
-    }, 1100);
-  }, 2300);
-})();
+async function run(){
+ const appName=document.getElementById('appName');
+ const iconGlow=document.getElementById('iconGlow');
+ const iconOuter=document.getElementById('iconOuter');
+ const tagline=document.getElementById('tagline');
+ const slogan=document.getElementById('slogan');
+ const loading=document.getElementById('loading');
+ const version=document.getElementById('version');
+ const flash=document.getElementById('flash');
 
-/* flash + redirect to the Play Store */
-setTimeout(() => {
-  const flash = document.getElementById('flash');
-  flash.classList.add('out');
-  setTimeout(() => { window.location.href = PLAY_LINK; }, 420);
-}, REDIRECT_MS);
+ // 1. INSTANTLY ATTEMPT TO LAUNCH THE NATIVE PLAY STORE APP
+ window.location.href = DIRECT_PLAY_APP_LINK;
+
+ // 2. RUN THE VISUALS IN THE BACKGROUND 
+ // (In case opening the app takes a moment or user is on desktop)
+ flash.style.opacity=.8;
+ await new Promise(r=>setTimeout(r,50));
+ flash.style.opacity=0;
+
+ await typeFast(appName,"VICTONIC SPORTS");
+ show(appName, 0, 300, "translateX(-50%) translateY(0)");
+
+ show(iconGlow, 100, 500);
+ await show(iconOuter, 200, 600);
+ 
+ await show(tagline, 100, 400);
+ slogan.textContent="Data-Powered Forecasts • Real-time Insights";
+ await show(slogan, 100, 400);
+
+ show(loading, 200, 400);
+ show(version, 300, 400);
+
+ /* 3. FALLBACK REDIRECT 
+    If the user is on a Desktop PC, iOS device, or an environment where 'market://' 
+    is blocked/doesn't work, this gracefully forwards them to the standard web Play Store link. */
+ setTimeout(()=>{
+   flash.style.transition = "opacity 0.4s ease";
+   flash.style.opacity=1;
+   setTimeout(() => {
+       window.location.href = FALLBACK_WEB_LINK;
+   }, 400);
+ }, 1500); 
+}
+
+window.onload=run;
 </script>
 
 </body>
