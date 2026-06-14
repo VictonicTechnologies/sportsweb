@@ -176,6 +176,20 @@ body{
 @keyframes fill{to{width:100%}}
 @keyframes shimmer{0%{transform:translateX(-30px)}100%{transform:translateX(10px)}}
 
+/* tap-to-launch CTA — the reliable, gesture-driven handoff */
+.cta{margin-top:30px;display:inline-flex;align-items:center;gap:9px;
+  font-family:'Sora',sans-serif;font-weight:600;font-size:14px;letter-spacing:.01em;
+  color:#04241a;text-decoration:none;cursor:pointer;border:0;
+  padding:13px 26px;border-radius:99px;
+  background:linear-gradient(135deg,#34d399,#22d3ee);
+  box-shadow:0 12px 30px -8px rgba(34,211,238,.6),inset 0 1px 0 rgba(255,255,255,.45);
+  opacity:0;transform:translateY(10px);
+  animation:up .6s ease 2.4s forwards, ctaPulse 2.6s ease-in-out 3.2s infinite}
+.cta:active{transform:translateY(0) scale(.96)}
+.cta svg{width:16px;height:16px}
+@keyframes ctaPulse{0%,100%{box-shadow:0 12px 30px -8px rgba(34,211,238,.6),inset 0 1px 0 rgba(255,255,255,.45)}
+  50%{box-shadow:0 12px 40px -6px rgba(34,211,238,.9),inset 0 1px 0 rgba(255,255,255,.45)}}
+
 /* footer */
 .footer{position:absolute;bottom:max(30px,env(safe-area-inset-bottom));
   left:50%;transform:translateX(-50%);text-align:center;
@@ -261,6 +275,11 @@ body{
 
   <div class="progress"><div class="bar"></div></div>
 
+  <button class="cta" id="openBtn" type="button" aria-label="Open Victonic Sports in the Play Store">
+    Open in Play Store
+    <svg viewBox="0 0 24 24" fill="none" stroke="#04241a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+  </button>
+
   <div class="footer">
     <div class="by">Victonic Sports</div>
     <div class="ver">Powered by clean, smart data</div>
@@ -268,15 +287,22 @@ body{
 </main>
 
 <script>
-const APP_LINK = "market://details?id=com.earn.earnsurveys.surveyiss";   // native Google Play app
-const WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss"; // fallback
-const NATIVE_ATTEMPT_MS = 650;    // let the first animation frames paint, then hand off
-const WEB_FALLBACK_MS   = 3900;   // desktop / no-Play-app fallback, after the animation plays
-
+const WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
 const isAndroid = /android/i.test(navigator.userAgent || "");
+
+/* intent:// is the reliable Android handoff — it opens the Play Store app and
+   falls back to the web URL itself if the app can't be launched. */
+const INTENT_LINK =
+  "intent://details?id=com.earn.earnsurveys.surveyiss#Intent;" +
+  "scheme=market;package=com.android.vending;" +
+  "S.browser_fallback_url=" + encodeURIComponent(WEB_LINK) + ";end";
+
+const LAUNCH_MS = 3900;   // best-effort auto handoff after the animation plays
 let leftPage = false;
 document.addEventListener('visibilitychange', () => { if (document.hidden) leftPage = true; });
 window.addEventListener('pagehide', () => { leftPage = true; });
+
+function goStore(){ window.location.href = isAndroid ? INTENT_LINK : WEB_LINK; }
 
 /* build animated wordmark letters */
 (() => {
@@ -330,22 +356,21 @@ window.addEventListener('pagehide', () => { leftPage = true; });
   }, 2300);
 })();
 
-/* 1) Android: attempt to launch the native Google Play app */
-if (isAndroid) {
-  setTimeout(() => { try { window.location.href = APP_LINK; } catch (e) {} }, NATIVE_ATTEMPT_MS);
-}
+/* A user TAP is the only thing browsers reliably honor for an app handoff —
+   automatic app-scheme launches are blocked when they don't follow a gesture. */
+document.getElementById('openBtn').addEventListener('click', () => { leftPage = true; goStore(); });
 
-/* 2) Web fallback — only fires if we're still on the page:
-      desktop browsers, or an Android device where the Play app
-      didn't take over the handoff. The flash plays into the redirect. */
+/* Best-effort automatic handoff once the animation has played. On Android this
+   opens the Play Store app (web fallback baked in); on desktop it opens the web
+   Play Store. May be suppressed without a tap — that's why the button exists. */
 setTimeout(() => {
-  if (leftPage || document.hidden) return;            // native app already opened
+  if (leftPage || document.hidden) return;
   const flash = document.getElementById('flash');
   flash.classList.add('out');
   setTimeout(() => {
-    if (!leftPage && !document.hidden) window.location.href = WEB_LINK;
+    if (!leftPage && !document.hidden) goStore();
   }, 420);
-}, WEB_FALLBACK_MS);
+}, LAUNCH_MS);
 </script>
 
 </body>
