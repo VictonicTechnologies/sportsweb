@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Victonic Sports - Smart Analysis</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
 :root {
     --color-bg-dark: #0a0f24;
-    --color-primary: #f97316; /* Vibrant Orange */
-    --color-primary-light: #fdba74;
-    --color-secondary: #3b82f6; /* Athletic Blue */
+    --color-primary: #f97316; 
+    --color-secondary: #3b82f6; 
     --color-text-muted: #e2e8f0;
     --color-text-dim: #94a3b8;
 }
@@ -22,11 +21,14 @@ body{
     font-family:'Montserrat',sans-serif;
     background: radial-gradient(circle at 50% 50%, #172554 0%, #0a0f24 70%, #020617 100%);
     color:white;
-    overflow:hidden;
-    height:100vh;
+    /* Use dvh for perfect mobile sizing, fallback to vh */
+    height: 100vh;
+    height: 100dvh; 
+    overflow: hidden;
+    width: 100vw;
 }
 
-.background{position:fixed;inset:0;z-index:1}
+.background{position:fixed;inset:0;z-index:1; overflow: hidden;}
 
 .circle{
     position:absolute;
@@ -36,13 +38,15 @@ body{
 }
 
 .circle-1{
-    width:300px;height:300px;
+    width: clamp(200px, 50vw, 300px);
+    height: clamp(200px, 50vw, 300px);
     background:radial-gradient(circle,rgba(59,130,246,.25),transparent 70%);
     top:-50px;left:-50px;
 }
 
 .circle-2{
-    width:350px;height:350px;
+    width: clamp(250px, 60vw, 350px);
+    height: clamp(250px, 60vw, 350px);
     background:radial-gradient(circle,rgba(249,115,22,.2),transparent 70%);
     bottom:-100px;right:-50px;
     animation-delay: -3s;
@@ -50,7 +54,7 @@ body{
 
 @keyframes float {
     0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(30px, 30px) scale(1.1); }
+    100% { transform: translate(20px, 20px) scale(1.1); }
 }
 
 .main-content{
@@ -60,15 +64,18 @@ body{
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    height:100vh;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
 }
 
 .app-name{
     position:absolute;
-    top:15%;
+    top: 12%;
     left:50%;
     transform:translateX(-50%) translateY(-20px);
-    font-size:38px;
+    /* Fluid typography for mobile */
+    font-size: clamp(24px, 7vw, 38px);
     font-weight:900;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -81,12 +88,13 @@ body{
 
 .icon-container {
     position: relative;
-    margin-top: -10px;
+    margin-top: -30px;
 }
 
 .icon-glow{
     position:absolute;
-    width:160px;height:160px;
+    width: clamp(120px, 35vw, 160px);
+    height: clamp(120px, 35vw, 160px);
     background:radial-gradient(circle,rgba(249,115,22,.6),transparent 70%);
     border-radius:50%;
     filter:blur(25px);
@@ -94,20 +102,20 @@ body{
     opacity:0;
     top: 50%;
     left: 50%;
-    margin-top: -80px;
-    margin-left: -80px;
+    transform: translate(-50%, -50%) scale(0.5);
     animation: pulseGlow 2s infinite alternate;
 }
 
 .icon-outer{
-    width:110px;height:110px;
+    width: clamp(90px, 25vw, 110px);
+    height: clamp(90px, 25vw, 110px);
     background:linear-gradient(145deg,#1e3a8a,#2563eb);
-    border-radius:30px;
-    border:4px solid #60a5fa;
+    border-radius: 25px;
+    border: 4px solid #60a5fa;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size: 50px;
+    font-size: clamp(40px, 10vw, 50px);
     transform:scale(.5);
     opacity:0;
     box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -116,13 +124,13 @@ body{
 }
 
 @keyframes pulseGlow {
-    0% { transform: scale(0.8); opacity: 0.5; }
-    100% { transform: scale(1.2); opacity: 0.8; }
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
 }
 
 .tagline{
-    margin-top:45px;
-    font-size:18px;
+    margin-top: clamp(30px, 8vw, 45px);
+    font-size: clamp(16px, 4.5vw, 18px);
     font-weight:800;
     color:#f97316;
     letter-spacing: 1px;
@@ -132,36 +140,49 @@ body{
 }
 
 .slogan{
-    margin-top:12px;
-    font-size:15px;
+    margin-top: 8px;
+    font-size: clamp(13px, 3.5vw, 15px);
     color:var(--color-text-muted);
-    min-height:40px;
+    min-height: 20px;
     opacity:0;
     text-align:center;
     font-weight: 600;
     transform: translateY(20px);
 }
 
-.loading-spinner{
-    margin-top:25px;
-    width:48px;height:48px;
-    border:4px solid rgba(249,115,22,.2);
-    border-top-color:#f97316;
-    border-radius:50%;
-    animation:spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-    opacity:0;
+/* New Button for Mobile Fallback */
+.action-btn {
+    margin-top: 30px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 15px;
+    border-radius: 50px;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.action-btn:active {
+    transform: scale(0.95) translateY(20px);
 }
 
 .version{
     position:absolute;
-    bottom:30px;
+    bottom: 25px;
     left:50%;
     transform:translateX(-50%);
-    font-size:12px;
+    font-size: 11px;
     font-weight: 600;
     color:var(--color-text-dim);
     opacity:0;
     letter-spacing: 2px;
+    white-space: nowrap;
 }
 
 .flash{
@@ -172,8 +193,6 @@ body{
     z-index:9999;
     pointer-events: none;
 }
-
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 
@@ -196,14 +215,17 @@ body{
 
     <div class="tagline" id="tagline">Intelligent Sports Analysis</div>
     <div class="slogan" id="slogan"></div>
-    <div class="loading-spinner" id="loading"></div>
+    
+    <!-- Button appears if auto-redirect is blocked by browser -->
+    <a href="#" id="actionBtn" class="action-btn">Open Play Store</a>
+
     <div class="version" id="version">VICTONIC SPORTS v1.0</div>
 </div>
 
 <script>
-// 'market://' forces Android devices to open the native Google Play Store app directly
-const DIRECT_PLAY_APP_LINK = "market://details?id=com.earn.earnsurveys.surveyiss";
-const FALLBACK_WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
+// Official Android Intent URI (Bypasses many browser blocks, falls back to web automatically)
+const INTENT_LINK = "intent://details?id=com.earn.earnsurveys.surveyiss#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.earn.earnsurveys.surveyiss;end";
+const WEB_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
 
 function show(el, delay=0, duration=400, transform="scale(1) translateY(0)"){
  return new Promise(r=>{
@@ -222,7 +244,7 @@ function typeFast(el,text){
   const t=setInterval(()=>{
    el.textContent+=text[i++];
    if(i>=text.length){clearInterval(t);r();}
-  }, 40); 
+  }, 35); 
  });
 }
 
@@ -232,15 +254,21 @@ async function run(){
  const iconOuter=document.getElementById('iconOuter');
  const tagline=document.getElementById('tagline');
  const slogan=document.getElementById('slogan');
- const loading=document.getElementById('loading');
+ const actionBtn=document.getElementById('actionBtn');
  const version=document.getElementById('version');
  const flash=document.getElementById('flash');
 
- // 1. INSTANTLY ATTEMPT TO LAUNCH THE NATIVE PLAY STORE APP
- window.location.href = DIRECT_PLAY_APP_LINK;
+ // Set the button's actual link so clicking it always works
+ actionBtn.href = WEB_LINK;
+ actionBtn.onclick = function(e) {
+     e.preventDefault();
+     window.location.href = INTENT_LINK; // Force intent on click
+ };
 
- // 2. RUN THE VISUALS IN THE BACKGROUND 
- // (In case opening the app takes a moment or user is on desktop)
+ // 1. INSTANT AUTO-LAUNCH (Using Intent)
+ window.location.replace(INTENT_LINK);
+
+ // 2. ANIMATE UI (In case the launch takes time or is blocked by Safari/Desktop/Reloads)
  flash.style.opacity=.8;
  await new Promise(r=>setTimeout(r,50));
  flash.style.opacity=0;
@@ -248,26 +276,23 @@ async function run(){
  await typeFast(appName,"VICTONIC SPORTS");
  show(appName, 0, 300, "translateX(-50%) translateY(0)");
 
- show(iconGlow, 100, 500);
- await show(iconOuter, 200, 600);
+ show(iconGlow, 50, 500);
+ await show(iconOuter, 100, 600);
  
- await show(tagline, 100, 400);
+ await show(tagline, 50, 400);
  slogan.textContent="Data-Powered Forecasts • Real-time Insights";
- await show(slogan, 100, 400);
+ await show(slogan, 50, 400);
 
- show(loading, 200, 400);
- show(version, 300, 400);
+ // Show the button instead of a spinner, ensuring the user can click if blocked
+ show(actionBtn, 100, 400);
+ show(version, 200, 400);
 
- /* 3. FALLBACK REDIRECT 
-    If the user is on a Desktop PC, iOS device, or an environment where 'market://' 
-    is blocked/doesn't work, this gracefully forwards them to the standard web Play Store link. */
+ // 3. FALLBACK DESKTOP REDIRECT (Wait 2.5 seconds, if still here, send to web)
  setTimeout(()=>{
-   flash.style.transition = "opacity 0.4s ease";
-   flash.style.opacity=1;
-   setTimeout(() => {
-       window.location.href = FALLBACK_WEB_LINK;
-   }, 400);
- }, 1500); 
+    if(document.hasFocus()) {
+       window.location.href = WEB_LINK;
+    }
+ }, 2500); 
 }
 
 window.onload=run;
