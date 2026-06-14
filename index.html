@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victonic Sports - Smart Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --color-bg-dark: #0a0f24;
+    --color-primary: #f97316; /* Vibrant Orange */
+    --color-primary-light: #fdba74;
+    --color-secondary: #3b82f6; /* Athletic Blue */
+    --color-text-muted: #e2e8f0;
+    --color-text-dim: #94a3b8;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    font-family:'Montserrat',sans-serif;
+    background: radial-gradient(circle at 50% 50%, #172554 0%, #0a0f24 70%, #020617 100%);
+    color:white;
+    overflow:hidden;
+    height:100vh;
+}
+
+.background{position:fixed;inset:0;z-index:1}
+
+.circle{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    animation: float 6s ease-in-out infinite alternate;
+}
+
+.circle-1{
+    width:300px;height:300px;
+    background:radial-gradient(circle,rgba(59,130,246,.25),transparent 70%);
+    top:-50px;left:-50px;
+}
+
+.circle-2{
+    width:350px;height:350px;
+    background:radial-gradient(circle,rgba(249,115,22,.2),transparent 70%);
+    bottom:-100px;right:-50px;
+    animation-delay: -3s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 30px) scale(1.1); }
+}
+
+.main-content{
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+
+.app-name{
+    position:absolute;
+    top:15%;
+    left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    font-size:38px;
+    font-weight:900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #60a5fa, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity:0;
+    white-space: nowrap;
+}
+
+.icon-container {
+    position: relative;
+    margin-top: -10px;
+}
+
+.icon-glow{
+    position:absolute;
+    width:160px;height:160px;
+    background:radial-gradient(circle,rgba(249,115,22,.6),transparent 70%);
+    border-radius:50%;
+    filter:blur(25px);
+    transform:scale(.5);
+    opacity:0;
+    top: 50%;
+    left: 50%;
+    margin-top: -80px;
+    margin-left: -80px;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+.icon-outer{
+    width:110px;height:110px;
+    background:linear-gradient(145deg,#1e3a8a,#2563eb);
+    border-radius:30px;
+    border:4px solid #60a5fa;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 50px;
+    transform:scale(.5);
+    opacity:0;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.tagline{
+    margin-top:45px;
+    font-size:18px;
+    font-weight:800;
+    color:#f97316;
+    letter-spacing: 1px;
+    opacity:0;
+    transform: translateY(20px);
+    text-align: center;
+}
+
+.slogan{
+    margin-top:12px;
+    font-size:15px;
+    color:var(--color-text-muted);
+    min-height:40px;
+    opacity:0;
+    text-align:center;
+    font-weight: 600;
+    transform: translateY(20px);
+}
+
+.loading-spinner{
+    margin-top:25px;
+    width:48px;height:48px;
+    border:4px solid rgba(249,115,22,.2);
+    border-top-color:#f97316;
+    border-radius:50%;
+    animation:spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    opacity:0;
+}
+
+.version{
+    position:absolute;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:12px;
+    font-weight: 600;
+    color:var(--color-text-dim);
+    opacity:0;
+    letter-spacing: 2px;
+}
+
+.flash{
+    position:fixed;
+    inset:0;
+    background:white;
+    opacity:0;
+    z-index:9999;
+    pointer-events: none;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<div class="main-content">
+    <div class="app-name" id="appName"></div>
+
+    <div class="icon-container">
+        <div class="icon-glow" id="iconGlow"></div>
+        <div class="icon-outer" id="iconOuter">📊</div>
+    </div>
+
+    <div class="tagline" id="tagline">Intelligent Sports Analysis</div>
+    <div class="slogan" id="slogan"></div>
+    <div class="loading-spinner" id="loading"></div>
+    <div class="version" id="version">VICTONIC SPORTS v1.0</div>
+</div>
+
+<script>
+const PLAY_LINK = "https://play.google.com/store/apps/details?id=com.earn.earnsurveys.surveyiss";
+
+function show(el, delay=0, duration=400, transform="scale(1) translateY(0)"){
+ return new Promise(r=>{
+  setTimeout(()=>{
+   el.style.transition=`all ${duration}ms cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+   el.style.opacity=1;
+   el.style.transform=transform;
+   setTimeout(r,duration);
+  }, delay);
+ });
+}
+
+function typeFast(el,text){
+ return new Promise(r=>{
+  let i=0;
+  const t=setInterval(()=>{
+   el.textContent+=text[i++];
+   if(i>=text.length){clearInterval(t);r();}
+  }, 40); 
+ });
+}
+
+async function run(){
+ const appName=document.getElementById('appName');
+ const iconGlow=document.getElementById('iconGlow');
+ const iconOuter=document.getElementById('iconOuter');
+ const tagline=document.getElementById('tagline');
+ const slogan=document.getElementById('slogan');
+ const loading=document.getElementById('loading');
+ const version=document.getElementById('version');
+ const flash=document.getElementById('flash');
+
+ // Initial screen pop flash
+ flash.style.opacity=.8;
+ await new Promise(r=>setTimeout(r,50));
+ flash.style.opacity=0;
+
+ // Type out the App Name
+ await typeFast(appName,"VICTONIC SPORTS");
+ show(appName, 0, 300, "translateX(-50%) translateY(0)");
+
+ // Bouncy drop-in for the main icon
+ show(iconGlow, 100, 500);
+ await show(iconOuter, 200, 600);
+ 
+ // Slide up Tagline & Slogan
+ await show(tagline, 100, 400);
+ slogan.textContent="Data-Powered Forecasts • Real-time Insights";
+ await show(slogan, 100, 400);
+
+ // Fade in spinner and version
+ show(loading, 200, 400);
+ show(version, 300, 400);
+
+ /* SMOOTH REDIRECT */
+ setTimeout(()=>{
+   flash.style.transition = "opacity 0.4s ease";
+   flash.style.opacity=1;
+   setTimeout(() => {
+       window.location.href = PLAY_LINK;
+   }, 400);
+ }, 1600); 
+}
+
+window.onload=run;
+</script>
+
+</body>
+</html>
